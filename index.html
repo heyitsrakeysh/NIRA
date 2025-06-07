@@ -523,6 +523,62 @@
             color: white;
         }
 
+        /* Tips Section Styles */
+        .tips-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+
+        .tip-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .tip-category {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fbbf24;
+        }
+
+        .collapsible {
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: inherit;
+            width: 100%;
+            text-align: left;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .collapsible:hover {
+            opacity: 0.8;
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-content.active {
+            max-height: 2000px;
+        }
+
+        .rotate-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .rotate-icon.rotated {
+            transform: rotate(180deg);
+        }
+
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .container { padding: 8px; }
@@ -633,6 +689,11 @@
                         </div>
                     </div>
 
+                    <!-- Tips Button -->
+                    <button onclick="toggleTips()" class="btn-primary bg-yellow-600 hover:bg-yellow-700 no-print">
+                        <i class="fas fa-lightbulb mr-1"></i>Tips & Help
+                    </button>
+
                     <!-- Settings Dropdown -->
                     <div class="settings-dropdown no-print">
                         <button onclick="toggleSettings()" class="btn-primary">
@@ -690,12 +751,112 @@
                     </div>
 
                     <!-- Publish Report Button -->
-                    <button onclick="publishReport()" class="btn-primary no-print bg-green-600 hover:bg-green-700">
+                    <button onclick="publishReport()" id="publish-btn" class="btn-primary no-print bg-green-600 hover:bg-green-700">
                         <i class="fas fa-print mr-1"></i>Publish Report
                     </button>
                 </div>
             </div>
         </header>
+
+        <!-- Tips & Help Section (Collapsible) -->
+        <div id="tips-section" class="tips-section no-print" style="display: none;">
+            <button class="collapsible section-title" onclick="toggleCollapsible('tips-content', 'tips-icon')">
+                <i class="fas fa-lightbulb text-yellow-300 mr-2"></i>
+                Tips & Help for NIRA Evaluation System
+                <i id="tips-icon" class="fas fa-chevron-down rotate-icon ml-auto"></i>
+            </button>
+            <div id="tips-content" class="collapsible-content">
+                <div class="grid md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <div class="tip-item">
+                            <div class="tip-category">🎯 Getting Started</div>
+                            <ul class="text-sm space-y-1">
+                                <li>• Set evaluation date and evaluator names first</li>
+                                <li>• Use the Calendar to select evaluation period</li>
+                                <li>• Review team information in Settings > Team Management</li>
+                                <li>• Check criteria weightings before scoring</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="tip-item">
+                            <div class="tip-category">📊 Scoring Guidelines</div>
+                            <ul class="text-sm space-y-1">
+                                <li>• PB scores: Originality (25), Clarity (20), Relevance (20), Innovation (20), Impact (15)</li>
+                                <li>• NI scores: Quality (25), Clarity (20), Data (20), Recommendations (20), Presentation (15)</li>
+                                <li>• Use decimal points for precise scoring (e.g., 18.5)</li>
+                                <li>• Add comments for detailed feedback</li>
+                            </ul>
+                        </div>
+
+                        <div class="tip-item">
+                            <div class="tip-category">🏆 Best Practices</div>
+                            <ul class="text-sm space-y-1">
+                                <li>• Review all criteria before starting evaluation</li>
+                                <li>• Score consistently across all teams</li>
+                                <li>• Use the full scoring range (0-max points)</li>
+                                <li>• Provide constructive comments for improvement</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="tip-item">
+                            <div class="tip-category">💾 Data Management</div>
+                            <ul class="text-sm space-y-1">
+                                <li>• Export data regularly as backup (JSON format)</li>
+                                <li>• Import previous evaluations for comparison</li>
+                                <li>• Use Email Report to share results with stakeholders</li>
+                                <li>• Publish Report creates a printable PDF version</li>
+                            </ul>
+                        </div>
+
+                        <div class="tip-item">
+                            <div class="tip-category">📈 Understanding Results</div>
+                            <ul class="text-sm space-y-1">
+                                <li>• Charts show real-time performance visualization</li>
+                                <li>• Medal rankings update automatically as you score</li>
+                                <li>• Combined scores show overall team performance</li>
+                                <li>• Winners are determined by highest scores in each category</li>
+                            </ul>
+                        </div>
+
+                        <div class="tip-item">
+                            <div class="tip-category">⚡ Pro Tips</div>
+                            <ul class="text-sm space-y-1">
+                                <li>• Use keyboard Tab to move between input fields quickly</li>
+                                <li>• Dark mode available via theme toggle</li>
+                                <li>• System auto-saves as you type</li>
+                                <li>• Click team names in charts for detailed view</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-item mt-4">
+                    <div class="tip-category">🔧 Troubleshooting</div>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <strong>PDF Not Generating:</strong>
+                            <ul class="mt-1 space-y-1">
+                                <li>• Ensure all scores are entered</li>
+                                <li>• Wait for loading to complete</li>
+                                <li>• Try refreshing if stuck</li>
+                                <li>• Use browser's Print function as backup</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong>Charts Not Updating:</strong>
+                            <ul class="mt-1 space-y-1">
+                                <li>• Check if scores are properly entered</li>
+                                <li>• Refresh page if needed</li>
+                                <li>• Ensure JavaScript is enabled</li>
+                                <li>• Try different browser if issues persist</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Main Content Layout -->
         <div class="main-content">
@@ -996,6 +1157,7 @@
         let currentYear = 2024;
         let selectedDate = new Date();
         let usedStories = new Set();
+        let isPublishing = false; // Flag to prevent multiple simultaneous publications
 
         // Updated Teams Data
         let teams = [
@@ -1080,69 +1242,7 @@
             
             "A consultant was hired to fix a failing department. Instead of implementing new processes, she spent weeks just observing and listening. She discovered the real problem wasn't efficiency - it was that people felt unheard. By creating space for voices to be heard, productivity increased by 300% without changing a single process.",
             
-            "A developer was working on a feature that seemed impossible with current technology. Instead of accepting defeat, she researched for months, learning from scientists, artists, and even chef techniques. Her unconventional approach led to a breakthrough that revolutionized the entire industry. Innovation happens when we look beyond our field's boundaries.",
-            
-            "A small team was competing against companies with 10x their resources. They couldn't match budgets, but they could match care. They personally called every potential user to understand their needs. This deep empathy helped them create something so user-focused that it beat all competitors. David can beat Goliath when David truly understands what users need.",
-            
-            "A quality assurance tester found a bug that would take weeks to fix right before a major launch. Instead of just reporting it, she worked with developers through the night, learning to code herself to help find solutions. Her dedication saved the launch and earned her a promotion to lead developer. Sometimes we grow by jumping into challenges we've never faced.",
-            
-            "A marketing manager's campaign failed spectacularly, losing the company significant money. Instead of being fired, she was asked to present what she learned. Her honest analysis of failures became the foundation for the company's most successful campaign ever. Failure becomes wisdom when we have the courage to learn from it.",
-            
-            "A technical writer was documenting software that even engineers found confusing. Instead of writing complex manuals, she created simple, visual guides by testing them with her non-technical friends first. Her approach made the software so accessible that user adoption increased by 500%. Great communication bridges gaps, not creates them.",
-            
-            "A team lead noticed his team was burning out from constant deadlines. Instead of pushing harder, he implemented 'exploration Fridays' where team members could work on any project they were passionate about. Productivity actually increased, and several exploration projects became major company innovations. Sometimes slowing down helps us go faster.",
-            
-            "A data analyst was given access to years of company data but told it was 'useless information.' She spent months finding patterns others missed and discovered insights that helped the company avoid a major strategic mistake. One person's noise is another person's symphony - it all depends on how carefully you listen.",
-            
-            "A customer service representative kept receiving the same complaint from different customers. Instead of just solving individual problems, she traced the root cause and proposed a product change. Her suggestion was implemented and eliminated 80% of customer complaints. Every complaint is an opportunity to make things better for everyone.",
-            
-            "A software architect was asked to design a system for a client whose requirements kept changing daily. Instead of getting frustrated, he created a flexible framework that could adapt to any changes. The client was so impressed by this adaptability that they hired the entire team for their next ten projects. Flexibility is strength, not weakness.",
-            
-            "A team's project was cancelled three weeks before completion. Instead of moving on, they requested permission to finish it on their own time because they believed in its value. Six months later, that 'cancelled' project became the company's most profitable product line. Persistence plus belief can overcome any obstacle.",
-            
-            "A junior employee suggested an idea during a meeting that senior leadership initially dismissed. She didn't give up but spent months researching and building a prototype in her spare time. When she presented the finished concept, it became the basis for a new business unit. Great ideas don't have titles or seniority requirements.",
-            
-            "A development team was behind schedule on a critical project. Instead of working longer hours, they decided to work smarter by pairing up and teaching each other their specialized skills. Not only did they meet the deadline, but every team member became more versatile. Collaboration multiplies individual strengths.",
-            
-            "A product manager's feature was universally hated by beta testers. Instead of defending it, she invited the harshest critics to co-design a better version. The final product, shaped by this feedback, became the most loved feature in the company's history. Criticism becomes creation when we embrace it as a gift.",
-            
-            "A system administrator noticed security vulnerabilities that others considered minor. She spent nights creating comprehensive protection protocols. Three months later, those protocols prevented a major cyber attack that could have destroyed the company. Small attention to security details can prevent massive disasters.",
-            
-            "A creative director's team was struggling with a client who rejected every proposal. Instead of trying harder to convince them, she organized a workshop where the client became part of the creative process. The collaborative approach led to a campaign that won industry awards. Sometimes the best solution is to stop selling and start collaborating.",
-            
-            "A finance analyst discovered discrepancies in expense reports that seemed insignificant. Her thorough investigation revealed a systematic fraud that was costing the company millions. Her attention to detail and refusal to ignore 'small' problems saved the organization from bankruptcy. Every detail matters when integrity is at stake.",
-            
-            "A user experience designer was told to make an app 'more addictive' to increase usage. Instead, she designed features that helped users accomplish their goals faster and leave satisfied. User satisfaction scores soared, and ironically, engagement increased because people trusted the app to respect their time. Ethical design creates lasting value.",
-            
-            "A network engineer was tasked with upgrading systems during a tight budget period. Instead of buying expensive new equipment, she creatively reconfigured existing resources and automated manual processes. Her solution not only saved money but improved performance beyond what the expensive upgrade would have achieved.",
-            
-            "A team leader inherited a project that three previous managers had failed to complete. Instead of starting over, she interviewed everyone who had worked on it to understand what went wrong. By learning from past mistakes and honoring previous efforts, she guided the team to success. Wisdom honors the lessons of those who came before.",
-            
-            "A business analyst was analyzing declining sales figures when she noticed customers were leaving positive reviews but not returning. Her investigation revealed that success was creating new needs the company wasn't addressing. Her insights led to product expansions that tripled revenue. Success creates new opportunities for those who pay attention.",
-            
-            "A database administrator's servers crashed during the company's biggest sales day of the year. Instead of panicking, she had prepared backup systems and recovery procedures that most thought were overkill. Her preparation saved millions in lost sales and earned her recognition as a strategic thinker. Preparation turns potential disasters into manageable situations.",
-            
-            "A graphic designer was asked to create materials for a campaign targeting an audience she knew nothing about. Instead of guessing, she spent weeks immersing herself in that community, learning their language, values, and visual preferences. Her authentic designs created the most successful campaign in company history. Authenticity requires understanding, not assumptions.",
-            
-            "A operations manager noticed employee morale dropping despite good performance metrics. She instituted monthly 'appreciation rounds' where team members acknowledged each other's contributions. Productivity increased 40% not because people worked harder, but because they felt valued. Recognition is fuel for human potential.",
-            
-            "A research scientist's experiment failed for the fifteenth time, but she noticed something unusual in the failed results. Instead of discarding the data, she investigated the anomaly and discovered a breakthrough that revolutionized their entire field. Sometimes failure contains the seeds of unexpected success.",
-            
-            "A sales representative was struggling to close deals in a competitive market. Instead of pushing harder, she started asking customers about their biggest challenges beyond what her product solved. This consultative approach made her a trusted advisor, and her sales tripled. Helping others succeed is the best path to your own success.",
-            
-            "A content creator's blog had only twelve readers after six months of posting. Instead of quitting, she personally reached out to each reader to understand what value they found in her work. Their feedback helped her refine her voice, and within a year she had built one of the industry's most respected publications. Quality audiences matter more than quantity.",
-            
-            "A logistics coordinator noticed delivery routes were inefficient but was told 'that's how we've always done it.' She created a pilot program with one route using her optimization ideas. The 30% improvement in efficiency led to company-wide implementation and promoted her to director of operations. Innovation often starts with questioning 'the way we've always done it.'",
-            
-            "A help desk technician kept getting calls about the same complex software issue. Instead of just fixing individual problems, she created step-by-step video tutorials and shared them with the community. Support calls dropped 60% and user satisfaction soared. Teaching others how to solve problems is more powerful than solving them one at a time.",
-            
-            "A project coordinator was managing multiple teams who rarely communicated with each other. She started a weekly 'cross-pollination' meeting where teams shared one interesting thing they learned. These sessions sparked unexpected collaborations that led to three breakthrough innovations. Great ideas emerge when knowledge flows freely between boundaries.",
-            
-            "A mobile app developer's app was rejected by app stores multiple times for being 'too simple.' Instead of adding complexity, she refined the simplicity until it was elegant. The app became a sensation specifically because it solved problems without creating new ones. Sometimes the most sophisticated solution is the simplest one.",
-            
-            "A HR manager noticed talented employees leaving for seemingly better opportunities. Instead of trying to retain them with counteroffers, she created alumni networks that maintained relationships. Many returned as senior leaders, and the alumni network became a powerful recruiting tool. Relationships that honor people's growth create long-term value.",
-            
-            "A supply chain analyst discovered suppliers were struggling with cash flow, affecting quality and delivery. Instead of finding cheaper alternatives, she worked with finance to create early payment programs that helped suppliers invest in better processes. Supply chain reliability improved dramatically, proving that helping partners succeed benefits everyone in the ecosystem."
+            "A developer was working on a feature that seemed impossible with current technology. Instead of accepting defeat, she researched for months, learning from scientists, artists, and even chef techniques. Her unconventional approach led to a breakthrough that revolutionized the entire industry. Innovation happens when we look beyond our field's boundaries."
         ];
 
         // Motivational Quotes
@@ -1192,6 +1292,35 @@
                     document.getElementById('email-options').classList.remove('show');
                 }
             });
+        }
+
+        // Tips Section Functions
+        function toggleTips() {
+            const tipsSection = document.getElementById('tips-section');
+            if (tipsSection.style.display === 'none') {
+                tipsSection.style.display = 'block';
+                // Auto-expand tips content when shown
+                const tipsContent = document.getElementById('tips-content');
+                const tipsIcon = document.getElementById('tips-icon');
+                if (!tipsContent.classList.contains('active')) {
+                    toggleCollapsible('tips-content', 'tips-icon');
+                }
+            } else {
+                tipsSection.style.display = 'none';
+            }
+        }
+
+        function toggleCollapsible(contentId, iconId) {
+            const content = document.getElementById(contentId);
+            const icon = document.getElementById(iconId);
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                icon.classList.remove('rotated');
+            } else {
+                content.classList.add('active');
+                icon.classList.add('rotated');
+            }
         }
 
         // Theme Toggle
@@ -1321,19 +1450,43 @@ Please remember to attach the downloaded JSON file before sending this email.`);
             return summaryTable;
         }
 
-        // Publish Report Function (PDF with Landscape)
+        // Enhanced Publish Report Function with Better Error Handling and Real-time Data Capture
         async function publishReport() {
+            // Prevent multiple simultaneous publications
+            if (isPublishing) {
+                alert('Report generation is already in progress. Please wait...');
+                return;
+            }
+
+            const publishBtn = document.getElementById('publish-btn');
+            const originalButtonText = publishBtn.innerHTML;
+
             try {
+                isPublishing = true;
+                
                 // Show loading indicator
-                const originalButtonText = event.target.innerHTML;
-                event.target.innerHTML = '<i class="fas fa-spinner loading-spinner mr-1"></i>Generating Report...';
-                event.target.disabled = true;
+                publishBtn.innerHTML = '<i class="fas fa-spinner loading-spinner mr-1"></i>Generating Report...';
+                publishBtn.disabled = true;
+
+                // Force update all calculations to ensure real-time data is captured
+                calculateAllScores();
+                updateCharts();
+                updateMedalRankings();
+                updateWinnerCards();
+                updateScoreSummaryBoxes();
+                updateFinalSummaryBoxes();
+                updateMedalWinnersDisplay();
+
+                // Wait for charts to render
+                await new Promise(resolve => setTimeout(resolve, 1000));
 
                 // Hide no-print elements
                 const noPrintElements = document.querySelectorAll('.no-print');
-                noPrintElements.forEach(el => el.style.display = 'none');
+                noPrintElements.forEach(el => {
+                    el.style.display = 'none';
+                });
 
-                // Configure html2canvas options for better quality
+                // Configure html2canvas options for better quality and data capture
                 const canvas = await html2canvas(document.body, {
                     scale: 2,
                     useCORS: true,
@@ -1342,22 +1495,61 @@ Please remember to attach the downloaded JSON file before sending this email.`);
                     width: document.body.scrollWidth,
                     height: document.body.scrollHeight,
                     scrollX: 0,
-                    scrollY: 0
+                    scrollY: 0,
+                    logging: false,
+                    removeContainer: true,
+                    async: true,
+                    foreignObjectRendering: true,
+                    imageTimeout: 15000,
+                    onclone: function(clonedDoc) {
+                        // Ensure all dynamic content is captured in the clone
+                        const clonedBody = clonedDoc.body;
+                        
+                        // Force update of all dynamic text content in the clone
+                        teams.forEach(team => {
+                            const pbTotalEl = clonedDoc.getElementById(`pb-total-${team.id}`);
+                            const niTotalEl = clonedDoc.getElementById(`ni-total-${team.id}`);
+                            
+                            if (pbTotalEl) {
+                                pbTotalEl.textContent = evaluationData.pb[team.id].total.toFixed(1) + '%';
+                            }
+                            if (niTotalEl) {
+                                niTotalEl.textContent = evaluationData.ni[team.id].total.toFixed(1) + '%';
+                            }
+                        });
+
+                        // Update winner information in clone
+                        const pbWinner = [...teams].sort((a, b) => evaluationData.pb[b.id].total - evaluationData.pb[a.id].total)[0];
+                        const niWinner = [...teams].sort((a, b) => evaluationData.ni[b.id].total - evaluationData.ni[a.id].total)[0];
+
+                        const pbWinnerNameEl = clonedDoc.getElementById('pb-winner-name');
+                        const pbWinnerScoreEl = clonedDoc.getElementById('pb-winner-score');
+                        const niWinnerNameEl = clonedDoc.getElementById('ni-winner-name');
+                        const niWinnerScoreEl = clonedDoc.getElementById('ni-winner-score');
+
+                        if (pbWinnerNameEl) pbWinnerNameEl.textContent = pbWinner.name;
+                        if (pbWinnerScoreEl) pbWinnerScoreEl.textContent = `Score: ${evaluationData.pb[pbWinner.id].total.toFixed(1)}%`;
+                        if (niWinnerNameEl) niWinnerNameEl.textContent = niWinner.name;
+                        if (niWinnerScoreEl) niWinnerScoreEl.textContent = `Score: ${evaluationData.ni[niWinner.id].total.toFixed(1)}%`;
+                    }
                 });
 
                 // Show no-print elements again
-                noPrintElements.forEach(el => el.style.display = '');
+                noPrintElements.forEach(el => {
+                    el.style.display = '';
+                });
 
                 // Create PDF in landscape format
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF({
                     orientation: 'landscape',
                     unit: 'mm',
-                    format: 'a4'
+                    format: 'a4',
+                    compress: true
                 });
 
                 // Calculate dimensions to fit the page
-                const imgData = canvas.toDataURL('image/png');
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = pdf.internal.pageSize.getHeight();
                 
@@ -1378,7 +1570,7 @@ Please remember to attach the downloaded JSON file before sending this email.`);
                 const xOffset = (pdfWidth - finalWidth) / 2;
                 const yOffset = (pdfHeight - finalHeight) / 2;
 
-                pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalWidth, finalHeight);
+                pdf.addImage(imgData, 'JPEG', xOffset, yOffset, finalWidth, finalHeight);
 
                 // Generate filename with timestamp
                 const timestamp = new Date().toISOString().split('T')[0];
@@ -1387,24 +1579,23 @@ Please remember to attach the downloaded JSON file before sending this email.`);
                 // Save the PDF
                 pdf.save(filename);
 
-                // Restore button
-                event.target.innerHTML = originalButtonText;
-                event.target.disabled = false;
-
-                alert('Report published successfully! PDF downloaded in landscape format.');
+                alert('Report published successfully! PDF downloaded with all current data.');
 
             } catch (error) {
                 console.error('Error generating report:', error);
                 
-                // Restore button
-                event.target.innerHTML = originalButtonText;
-                event.target.disabled = false;
-                
                 // Show no-print elements again in case of error
                 const noPrintElements = document.querySelectorAll('.no-print');
-                noPrintElements.forEach(el => el.style.display = '');
+                noPrintElements.forEach(el => {
+                    el.style.display = '';
+                });
                 
-                alert('Error generating report. Please try using your browser\'s print function instead.');
+                alert('Error generating report. Please try again or use your browser\'s print function as backup.');
+            } finally {
+                // Restore button state
+                publishBtn.innerHTML = originalButtonText;
+                publishBtn.disabled = false;
+                isPublishing = false;
             }
         }
 
@@ -1736,7 +1927,10 @@ Please remember to attach the downloaded JSON file before sending this email.`);
             });
             
             evaluationData.pb[teamId].total = total;
-            document.getElementById(`pb-total-${teamId}`).textContent = total.toFixed(1) + '%';
+            const totalElement = document.getElementById(`pb-total-${teamId}`);
+            if (totalElement) {
+                totalElement.textContent = total.toFixed(1) + '%';
+            }
             
             updateMedalRankings();
             updateWinnerCards();
@@ -1759,7 +1953,10 @@ Please remember to attach the downloaded JSON file before sending this email.`);
             });
             
             evaluationData.ni[teamId].total = total;
-            document.getElementById(`ni-total-${teamId}`).textContent = total.toFixed(1) + '%';
+            const totalElement = document.getElementById(`ni-total-${teamId}`);
+            if (totalElement) {
+                totalElement.textContent = total.toFixed(1) + '%';
+            }
             
             updateMedalRankings();
             updateWinnerCards();
@@ -1941,8 +2138,10 @@ Please remember to attach the downloaded JSON file before sending this email.`);
             if (sortedTeams.length > 0) {
                 const winner = sortedTeams[0];
                 const score = evaluationData.pb[winner.id].total;
-                document.getElementById('pb-winner-name').textContent = winner.name;
-                document.getElementById('pb-winner-score').textContent = `Score: ${score.toFixed(1)}%`;
+                const winnerNameEl = document.getElementById('pb-winner-name');
+                const winnerScoreEl = document.getElementById('pb-winner-score');
+                if (winnerNameEl) winnerNameEl.textContent = winner.name;
+                if (winnerScoreEl) winnerScoreEl.textContent = `Score: ${score.toFixed(1)}%`;
             }
         }
 
@@ -1954,8 +2153,10 @@ Please remember to attach the downloaded JSON file before sending this email.`);
             if (sortedTeams.length > 0) {
                 const winner = sortedTeams[0];
                 const score = evaluationData.ni[winner.id].total;
-                document.getElementById('ni-winner-name').textContent = winner.name;
-                document.getElementById('ni-winner-score').textContent = `Score: ${score.toFixed(1)}%`;
+                const winnerNameEl = document.getElementById('ni-winner-name');
+                const winnerScoreEl = document.getElementById('ni-winner-score');
+                if (winnerNameEl) winnerNameEl.textContent = winner.name;
+                if (winnerScoreEl) winnerScoreEl.textContent = `Score: ${score.toFixed(1)}%`;
             }
         }
 

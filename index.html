@@ -1,0 +1,2336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIRA - PB & NI Performance Evaluation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #10b981;
+            --accent-color: #f59e0b;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #60a5fa;
+            --secondary-color: #34d399;
+            --accent-color: #fbbf24;
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .professional-font {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .bg-primary {
+            background-color: var(--bg-primary);
+        }
+
+        .bg-secondary {
+            background-color: var(--bg-secondary);
+        }
+
+        .text-primary {
+            color: var(--text-primary);
+        }
+
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+
+        .border-custom {
+            border-color: var(--border-color);
+        }
+
+        /* Animated Quote Banner */
+        .quotes-banner {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 12px;
+            text-align: center;
+            font-weight: 500;
+            animation: slideText 6s infinite;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            font-size: 12px;
+        }
+
+        @keyframes slideText {
+            0%, 15% { opacity: 1; transform: translateY(0); }
+            85%, 100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Medal Styles */
+        .medal {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .medal-small {
+            font-size: 1.2rem;
+            margin-right: 6px;
+        }
+
+        /* Winner Cards */
+        .winner-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .winner-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.1) 10px,
+                rgba(255,255,255,0.1) 20px
+            );
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        /* Score Summary Boxes */
+        .score-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            padding: 16px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .score-box:hover {
+            transform: translateY(-3px);
+        }
+
+        /* Medal Display in Reports */
+        .medal-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            margin: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+            min-height: 120px;
+        }
+
+        .medal-display.first {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1f2937;
+        }
+
+        .medal-display.second {
+            background: linear-gradient(135deg, #c0c0c0 0%, #e5e7eb 100%);
+            color: #1f2937;
+        }
+
+        .medal-display.third {
+            background: linear-gradient(135deg, #cd7f32 0%, #d97706 100%);
+            color: white;
+        }
+
+        /* Nira Bot */
+        .nira-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #06d6a0, #118ab2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .story-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 16px;
+            color: white;
+            margin: 8px 0;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 220px;
+            margin: 15px 0;
+        }
+
+        /* Input Validation */
+        .invalid-input {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+
+        .valid-input {
+            border-color: #10b981 !important;
+            background-color: #f0fdf4 !important;
+        }
+
+        /* Ranking Cards */
+        .ranking-card {
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            transition: all 0.3s ease;
+            margin-bottom: 6px;
+        }
+
+        .ranking-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            background: #374151;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            background: #3b82f6;
+        }
+
+        [data-theme="dark"] .theme-toggle::before {
+            transform: translateX(25px);
+        }
+
+        /* Custom Calendar Styles */
+        .calendar-container {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1000;
+            min-width: 260px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+        }
+
+        .calendar-day {
+            padding: 6px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            font-size: 12px;
+        }
+
+        .calendar-day:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .calendar-day.selected {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Form Controls */
+        input, select, textarea {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), #1d4ed8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Settings Dropdown */
+        .settings-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: var(--bg-primary);
+            min-width: 280px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Single Page Layout Optimization */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .section-card {
+            background: var(--bg-primary);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+            break-inside: avoid;
+        }
+
+        .compact-section {
+            padding: 12px;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Date section styling */
+        .date-section {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Compact table styling */
+        table {
+            font-size: 0.8rem;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Signature */
+        .signature {
+            text-align: center;
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 20px;
+            padding: 8px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* PDF Optimizations */
+        @media print {
+            .quotes-banner { display: none; }
+            .no-print { display: none !important; }
+            body { background: white; color: black; margin: 0; }
+            .bg-primary, .bg-secondary { background: white !important; }
+            .text-primary, .text-secondary { color: black !important; }
+            .section-card { box-shadow: none; }
+            .main-content { gap: 12px; }
+            .chart-container { height: 180px; }
+        }
+
+        /* Email client detection styles */
+        .email-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            z-index: 1000;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .email-options.show {
+            display: block;
+        }
+
+        .email-option {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            text-align: left;
+            border: none;
+            background: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .email-option:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container { padding: 8px; }
+            .quotes-banner { font-size: 10px; padding: 6px; }
+            .chart-container { height: 200px; }
+            .chart-grid { grid-template-columns: 1fr; }
+            .section-card { padding: 12px; }
+            .section-title { font-size: 1.1rem; }
+            .winner-card { padding: 16px; }
+            .medal { font-size: 1rem; }
+            table { font-size: 0.7rem; }
+            .btn-primary, .btn-secondary { padding: 6px 12px; font-size: 12px; }
+            .score-box { padding: 12px; }
+            .story-container { min-height: 80px; padding: 12px; }
+            .nira-avatar { width: 40px; height: 40px; font-size: 16px; }
+            
+            /* Stack header elements on mobile */
+            .header-content { flex-direction: column; gap: 12px; }
+            .header-actions { flex-wrap: wrap; gap: 8px; justify-content: center; }
+            
+            /* Responsive tables */
+            .table-container { overflow-x: auto; }
+            .table-container table { min-width: 600px; }
+            
+            /* Responsive calendar */
+            .calendar-container { min-width: 240px; right: 0; left: auto; }
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 4px; }
+            .section-card { padding: 8px; }
+            .grid { grid-template-columns: 1fr !important; }
+            .btn-primary, .btn-secondary { padding: 4px 8px; font-size: 11px; }
+            .winner-card { padding: 12px; }
+            .score-box { padding: 8px; }
+            table { font-size: 0.65rem; }
+            input, select { font-size: 12px; padding: 4px; }
+        }
+
+        /* Desktop optimization for single page view */
+        @media (min-width: 1024px) {
+            .chart-grid { grid-template-columns: 1fr 1fr; }
+            .main-content { gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Motivational Quotes Banner -->
+    <div id="quotes-banner" class="quotes-banner">
+        "Excellence is never an accident. It is always the result of high intention, sincere effort, and intelligent execution."
+    </div>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-2 py-4 mt-12">
+        <!-- Header -->
+        <header class="section-card mb-4">
+            <div class="header-content flex justify-between items-center flex-wrap gap-4">
+                <div class="flex items-center space-x-3">
+                    <!-- NIRA Logo -->
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">NIRA</span>
+                    </div>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-bold text-primary professional-font">
+                            PB & NI Performance Evaluation System
+                        </h1>
+                        <p class="text-secondary text-xs">Professional Assessment & Innovation Platform</p>
+                    </div>
+                </div>
+                <div class="header-actions flex items-center space-x-2 flex-wrap">
+                    <!-- Custom Calendar -->
+                    <div class="relative">
+                        <button onclick="toggleCalendar()" class="date-section">
+                            <i class="fas fa-calendar-alt mr-1"></i>
+                            <span id="evaluation-month-display">December 2024</span>
+                        </button>
+                        <div id="calendar-container" class="calendar-container" style="display: none;">
+                            <div class="calendar-header">
+                                <button onclick="prevMonth()" class="btn-secondary text-xs"><i class="fas fa-chevron-left"></i></button>
+                                <div>
+                                    <select id="month-select" onchange="updateCalendar()" class="text-xs">
+                                        <option value="0">January</option>
+                                        <option value="1">February</option>
+                                        <option value="2">March</option>
+                                        <option value="3">April</option>
+                                        <option value="4">May</option>
+                                        <option value="5">June</option>
+                                        <option value="6">July</option>
+                                        <option value="7">August</option>
+                                        <option value="8">September</option>
+                                        <option value="9">October</option>
+                                        <option value="10">November</option>
+                                        <option value="11" selected>December</option>
+                                    </select>
+                                    <input type="number" id="year-select" value="2024" min="2020" max="2030" onchange="updateCalendar()" class="w-16 ml-1 p-1 border rounded text-xs">
+                                </div>
+                                <button onclick="nextMonth()" class="btn-secondary text-xs"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                            <div class="calendar-grid">
+                                <div class="text-xs font-bold text-center py-1">Sun</div>
+                                <div class="text-xs font-bold text-center py-1">Mon</div>
+                                <div class="text-xs font-bold text-center py-1">Tue</div>
+                                <div class="text-xs font-bold text-center py-1">Wed</div>
+                                <div class="text-xs font-bold text-center py-1">Thu</div>
+                                <div class="text-xs font-bold text-center py-1">Fri</div>
+                                <div class="text-xs font-bold text-center py-1">Sat</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Dropdown -->
+                    <div class="settings-dropdown no-print">
+                        <button onclick="toggleSettings()" class="btn-primary">
+                            <i class="fas fa-cog mr-1"></i>Settings
+                        </button>
+                        <div id="settings-dropdown" class="dropdown-content">
+                            <h3 class="font-bold text-base mb-3">Settings</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-medium mb-1">Email Recipient</label>
+                                    <input type="email" id="email-recipient" value="rakesh.suthar@performics.com" class="w-full p-2 border border-custom rounded-lg text-xs">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium mb-1">Team Management</label>
+                                    <button onclick="openTeamManager()" class="btn-secondary w-full">
+                                        <i class="fas fa-users mr-1"></i>Manage Teams
+                                    </button>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium mb-1">Display Options</label>
+                                    <div class="flex flex-col space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" id="show-pb-criteria" checked onchange="toggleCriteriaDisplay('pb')" class="mr-2">
+                                            <span class="text-xs">Show PB Criteria</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" id="show-ni-criteria" checked onchange="toggleCriteriaDisplay('ni')" class="mr-2">
+                                            <span class="text-xs">Show NI Criteria</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <div class="theme-toggle no-print" onclick="toggleTheme()"></div>
+
+                    <!-- Email Report Button -->
+                    <div class="relative">
+                        <button onclick="toggleEmailOptions()" class="btn-primary no-print">
+                            <i class="fas fa-envelope mr-1"></i>Email Report
+                        </button>
+                        <div id="email-options" class="email-options">
+                            <button onclick="emailReport('outlook')" class="email-option">
+                                <i class="fas fa-envelope mr-2"></i>Outlook
+                            </button>
+                            <button onclick="emailReport('gmail')" class="email-option">
+                                <i class="fas fa-envelope mr-2"></i>Gmail
+                            </button>
+                            <button onclick="emailReport('default')" class="email-option">
+                                <i class="fas fa-envelope mr-2"></i>Default Email App
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Publish Report Button -->
+                    <button onclick="publishReport()" class="btn-primary no-print bg-green-600 hover:bg-green-700">
+                        <i class="fas fa-print mr-1"></i>Publish Report
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Layout -->
+        <div class="main-content">
+            <!-- Dual Winner Display -->
+            <div class="grid md:grid-cols-2 gap-4">
+                <!-- PB Winner -->
+                <div id="pb-winner-card" class="winner-card">
+                    <div class="relative z-10">
+                        <div class="text-4xl mb-3">🏆</div>
+                        <h2 class="text-lg font-bold mb-2 professional-font">PB Champion</h2>
+                        <div id="pb-winner-name" class="text-base font-semibold mb-1">Awaiting Results...</div>
+                        <div id="pb-winner-score" class="text-sm mb-2">Score: 0%</div>
+                        <div id="pb-winner-quote" class="italic text-xs opacity-90 mb-3">
+                            "Excellence is never an accident. It is always the result of high intention, sincere effort, and intelligent execution."
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NI Winner -->
+                <div id="ni-winner-card" class="winner-card">
+                    <div class="relative z-10">
+                        <div class="text-4xl mb-3">💡</div>
+                        <h2 class="text-lg font-bold mb-2 professional-font">NI Champion</h2>
+                        <div id="ni-winner-name" class="text-base font-semibold mb-1">Awaiting Results...</div>
+                        <div id="ni-winner-score" class="text-sm mb-2">Score: 0%</div>
+                        <div id="ni-winner-quote" class="italic text-xs opacity-90 mb-3">
+                            "Innovation distinguishes between a leader and a follower."
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medal Rankings & Charts Section -->
+            <div class="section-card">
+                <h2 class="section-title">
+                    <i class="fas fa-medal text-yellow-500"></i>Medal Rankings & Performance Charts
+                </h2>
+                <div class="grid lg:grid-cols-4 gap-4">
+                    <!-- PB Medal Table -->
+                    <div>
+                        <h3 class="text-sm font-bold text-primary mb-3">PB Rankings</h3>
+                        <div id="pb-medal-table" class="space-y-1">
+                            <!-- PB rankings will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- NI Medal Table -->
+                    <div>
+                        <h3 class="text-sm font-bold text-primary mb-3">NI Rankings</h3>
+                        <div id="ni-medal-table" class="space-y-1">
+                            <!-- NI rankings will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="lg:col-span-2">
+                        <div class="chart-grid">
+                            <div class="chart-container">
+                                <h3 class="text-xs font-semibold mb-2 text-primary">PB Performance</h3>
+                                <canvas id="pb-chart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <h3 class="text-xs font-semibold mb-2 text-primary">NI Performance</h3>
+                                <canvas id="ni-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evaluator Information -->
+            <div class="section-card compact-section">
+                <h2 class="section-title">
+                    <i class="fas fa-user-check text-blue-600"></i>Evaluator Information
+                </h2>
+                <div class="grid md:grid-cols-3 gap-3">
+                    <input type="text" id="pb-evaluator-name" placeholder="PB Evaluator Name" class="p-2 border border-custom rounded-lg text-sm">
+                    <input type="text" id="ni-evaluator-name" placeholder="NI Evaluator Name" class="p-2 border border-custom rounded-lg text-sm">
+                    <input type="date" id="evaluation-date" class="p-2 border border-custom rounded-lg text-sm">
+                </div>
+            </div>
+
+            <!-- PB Evaluation Section -->
+            <div class="section-card">
+                <h2 class="section-title">
+                    <i class="fas fa-book text-blue-600"></i>Playbook (PB) Evaluation
+                </h2>
+
+                <!-- PB Criteria Display -->
+                <div id="pb-criteria-display" class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4 p-3 bg-blue-50 rounded-lg">
+                    <div class="text-center">
+                        <div class="text-xs font-semibold text-blue-800">Originality & Creativity</div>
+                        <div class="text-sm font-bold text-blue-600">25%</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs font-semibold text-blue-800">Clarity & Structure</div>
+                        <div class="text-sm font-bold text-blue-600">20%</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs font-semibold text-blue-800">Relevance & Applicability</div>
+                        <div class="text-sm font-bold text-blue-600">20%</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs font-semibold text-blue-800">Out-of-box Thinking</div>
+                        <div class="text-sm font-bold text-blue-600">20%</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs font-semibold text-blue-800">Impact Potential</div>
+                        <div class="text-sm font-bold text-blue-600">15%</div>
+                    </div>
+                </div>
+
+                <!-- PB Scoring Table -->
+                <div class="table-container overflow-x-auto">
+                    <table class="w-full border-collapse border border-custom">
+                        <thead>
+                            <tr class="bg-secondary">
+                                <th class="p-2 text-left font-semibold text-primary border border-custom text-xs">Team</th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Originality<br><span class="text-xs">(0-25)</span></th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Clarity<br><span class="text-xs">(0-20)</span></th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Relevance<br><span class="text-xs">(0-20)</span></th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Innovation<br><span class="text-xs">(0-20)</span></th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Impact<br><span class="text-xs">(0-15)</span></th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Total</th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Comments</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pb-scoring-table">
+                            <!-- PB scoring rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- NI Evaluation Section -->
+            <div class="section-card">
+                <h2 class="section-title">
+                    <i class="fas fa-lightbulb text-yellow-600"></i>Notes & Insights (NI) Evaluation
+                </h2>
+
+                <!-- NI Criteria Display -->
+                <div id="ni-criteria-display" class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4 p-3 bg-yellow-50 rounded-lg">
+                    <div class="text-center">
+                        <div class="text-xs font-semibold text-yellow-800">Quality & Depth</div>
+                        <div class="text-sm font-bold text-yellow-600">25%</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs font-semibold text-yellow-800">Clarity of Insights</div>
+                        <div class="text-sm font-bold text-yellow-600">20%</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs font-semibold text-yellow-800">Data & Visualizations</div>
+                        <div class="text-sm font-bold text-yellow-600">20%</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs font-semibold text-yellow-800">Relevance of Recommendations</div>
+                        <div class="text-sm font-bold text-yellow-600">20%</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xs font-semibold text-yellow-800">Presentation & Storytelling</div>
+                        <div class="text-sm font-bold text-yellow-600">15%</div>
+                    </div>
+                </div>
+
+                <!-- NI Scoring Table -->
+                <div class="table-container overflow-x-auto">
+                    <table class="w-full border-collapse border border-custom">
+                        <thead>
+                            <tr class="bg-secondary">
+                                <th class="p-2 text-left font-semibold text-primary border border-custom text-xs">Team</th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Quality<br><span class="text-xs">(0-25)</span></th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Clarity<br><span class="text-xs">(0-20)</span></th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Data<br><span class="text-xs">(0-20)</span></th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Recommendations<br><span class="text-xs">(0-20)</span></th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Presentation<br><span class="text-xs">(0-15)</span></th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Total</th>
+                                <th class="p-2 text-center font-semibold text-primary border border-custom text-xs">Comments</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ni-scoring-table">
+                            <!-- NI scoring rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reports & Analytics Section -->
+            <div class="section-card">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-bar text-green-600"></i>Reports & Analytics
+                </h2>
+
+                <!-- Action Buttons -->
+                <div class="grid md:grid-cols-2 gap-3 mb-4">
+                    <button onclick="exportData()" class="btn-primary bg-green-600 hover:bg-green-700 no-print">
+                        <i class="fas fa-upload mr-1"></i>Export Data
+                    </button>
+                    <button onclick="importData()" class="btn-primary bg-blue-600 hover:bg-blue-700 no-print">
+                        <i class="fas fa-download mr-1"></i>Import Data
+                    </button>
+                </div>
+
+                <!-- Score Summary Boxes and Comparison Chart -->
+                <div class="grid md:grid-cols-3 gap-4">
+                    <!-- Score Summary Boxes -->
+                    <div class="md:col-span-1">
+                        <h3 class="text-sm font-semibold mb-2 text-primary">Team Scores Overview</h3>
+                        <div class="grid grid-cols-1 gap-2" id="score-summary-boxes">
+                            <!-- Score boxes will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Performance Comparison Chart -->
+                    <div class="md:col-span-2">
+                        <div class="chart-container bg-secondary p-3 rounded-lg">
+                            <h3 class="text-sm font-semibold mb-2 text-primary">Performance Comparison</h3>
+                            <canvas id="comparisonChart"></canvas>
+                        </div>
+                        
+                        <!-- Medal Winners Display -->
+                        <div class="mt-4">
+                            <h4 class="text-sm font-semibold mb-3 text-primary">Overall Medal Winners</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="medal-winners-display">
+                                <!-- Medal winners will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Boxes Grid -->
+            <div class="section-card">
+                <h2 class="section-title">
+                    <i class="fas fa-trophy text-purple-600"></i>Final Team Scores Summary
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="final-summary-boxes">
+                    <!-- Summary boxes will be populated here -->
+                </div>
+            </div>
+
+            <!-- Nira Story Bot -->
+            <div class="section-card no-print">
+                <div class="flex items-start space-x-3">
+                    <div class="nira-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="section-title">
+                                Hi, I'm Nira! Wanna hear a story?
+                            </h2>
+                        </div>
+                        <div id="story-container" class="story-container mb-3" style="display: none;">
+                            <p id="story-text" class="text-center text-xs"></p>
+                        </div>
+                        <button id="story-button" onclick="getStory()" class="btn-primary bg-teal-600 hover:bg-teal-700">
+                            <i class="fas fa-star mr-1"></i>Tell me a story
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signature -->
+        <div class="signature">
+            System designed by Rakesh Suthar
+        </div>
+    </div>
+
+    <!-- Hidden Elements -->
+    <input type="file" id="file-input" accept=".xlsx,.json" style="display: none;" onchange="handleFileImport(event)">
+
+    <!-- Team Manager Modal -->
+    <div id="team-manager-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-primary); padding: 24px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 80%; overflow-y: auto;">
+            <h3 class="text-xl font-bold mb-4">Team Management</h3>
+            <div id="team-list" class="space-y-3 mb-4">
+                <!-- Teams will be populated here -->
+            </div>
+            <div class="flex justify-between">
+                <button onclick="addNewTeam()" class="btn-primary">
+                    <i class="fas fa-plus mr-1"></i>Add New Team
+                </button>
+                <button onclick="closeTeamManager()" class="btn-secondary">
+                    <i class="fas fa-times mr-1"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let charts = {};
+        let currentTheme = 'light';
+        let storyCount = 0;
+        let currentQuoteIndex = 0;
+        let currentMonth = 11; // December
+        let currentYear = 2024;
+        let selectedDate = new Date();
+        let usedStories = new Set();
+
+        // Updated Teams Data
+        let teams = [
+            {
+                id: 'zeus',
+                name: 'Team Zeus',
+                lead: 'Awez B',
+                members: ['Abhishek J', 'Apurva G', 'Chinmay A', 'Yug K'],
+                color: 'blue'
+            },
+            {
+                id: 'cronos',
+                name: 'Team Cronos',
+                lead: 'Rakesh S',
+                members: ['Harshi K', 'Dhaavaal S', 'Bhagyashri D'],
+                color: 'green'
+            },
+            {
+                id: 'olympus',
+                name: 'Team Olympus',
+                lead: 'Shubham N',
+                members: ['Chitra J', 'Neha R'],
+                color: 'purple'
+            },
+            {
+                id: 'phoenix',
+                name: 'Team Phoenix',
+                lead: 'Rahul W',
+                members: ['Dhwani G', 'Osama M', 'Shreya T'],
+                color: 'red'
+            }
+        ];
+
+        let evaluationData = {
+            pb: {},
+            ni: {}
+        };
+
+        // Initialize teams data
+        teams.forEach(team => {
+            evaluationData.pb[team.id] = {
+                scores: {
+                    originality: 0,
+                    clarity: 0,
+                    relevance: 0,
+                    innovation: 0,
+                    impact: 0
+                },
+                total: 0,
+                comments: ''
+            };
+            evaluationData.ni[team.id] = {
+                scores: {
+                    quality: 0,
+                    clarity: 0,
+                    data: 0,
+                    recommendations: 0,
+                    presentation: 0
+                },
+                total: 0,
+                comments: ''
+            };
+        });
+
+        // Enhanced Motivational Stories Collection (40+ stories)
+        const motivationalStories = [
+            "A young programmer was struggling with a complex algorithm that had stumped him for weeks. Instead of giving up, he decided to take a different approach - he explained the problem to his grandmother who knew nothing about coding. As he simplified the technical jargon into everyday language, the solution suddenly became clear. Sometimes the best breakthroughs come when we step back and see problems with fresh eyes.",
+            
+            "There was once a team that received the lowest budget for their project while other teams got premium resources. Instead of complaining, they turned constraint into creativity. They built something so innovative and efficient that it became the company's flagship product. Their secret? They collaborated deeply, shared every idea, and turned limitations into fuel for innovation.",
+            
+            "A designer was tasked with creating a logo for a startup with zero budget. She could have made excuses, but instead she interviewed every single employee to understand their vision. The final design, created with free tools and pure passion, became an iconic brand symbol worth millions. Great work isn't about expensive tools - it's about understanding and caring deeply.",
+            
+            "Two teams were given identical projects with the same deadline. Team A divided tasks immediately and worked in isolation. Team B spent the first week just talking - sharing fears, strengths, and dreams. When the deadline came, Team A delivered a functional product. Team B delivered magic. The difference? They had built trust before they built anything else.",
+            
+            "A junior developer noticed a small inefficiency in the company's code that everyone else ignored. She spent her lunch breaks for three months creating a solution. Her 'small' fix ended up saving the company 2 million dollars annually. Never underestimate the power of caring about details that others overlook.",
+            
+            "An intern was assigned to work with the company's most difficult client. Everyone expected failure. Instead of fighting the client's demands, she listened carefully and discovered they were actually afraid their needs weren't understood. By addressing their fears first, she not only satisfied the client but turned them into the company's biggest advocate.",
+            
+            "A startup team worked from a garage for two years, facing rejection after rejection from investors. They had no fancy offices, no expensive equipment, just belief in their vision and unwavering support for each other. Today, that garage startup employs thousands. The secret ingredient was never money - it was faith in each other.",
+            
+            "A project manager inherited a team that hadn't spoken to each other in months due to conflicts. Instead of forcing them to work together, she started with something simple - she asked each person to share one thing they appreciated about their work. That small act of recognition broke down walls and rebuilt the team stronger than ever.",
+            
+            "A consultant was hired to fix a failing department. Instead of implementing new processes, she spent weeks just observing and listening. She discovered the real problem wasn't efficiency - it was that people felt unheard. By creating space for voices to be heard, productivity increased by 300% without changing a single process.",
+            
+            "A developer was working on a feature that seemed impossible with current technology. Instead of accepting defeat, she researched for months, learning from scientists, artists, and even chef techniques. Her unconventional approach led to a breakthrough that revolutionized the entire industry. Innovation happens when we look beyond our field's boundaries.",
+            
+            "A small team was competing against companies with 10x their resources. They couldn't match budgets, but they could match care. They personally called every potential user to understand their needs. This deep empathy helped them create something so user-focused that it beat all competitors. David can beat Goliath when David truly understands what users need.",
+            
+            "A quality assurance tester found a bug that would take weeks to fix right before a major launch. Instead of just reporting it, she worked with developers through the night, learning to code herself to help find solutions. Her dedication saved the launch and earned her a promotion to lead developer. Sometimes we grow by jumping into challenges we've never faced.",
+            
+            "A marketing manager's campaign failed spectacularly, losing the company significant money. Instead of being fired, she was asked to present what she learned. Her honest analysis of failures became the foundation for the company's most successful campaign ever. Failure becomes wisdom when we have the courage to learn from it.",
+            
+            "A technical writer was documenting software that even engineers found confusing. Instead of writing complex manuals, she created simple, visual guides by testing them with her non-technical friends first. Her approach made the software so accessible that user adoption increased by 500%. Great communication bridges gaps, not creates them.",
+            
+            "A team lead noticed his team was burning out from constant deadlines. Instead of pushing harder, he implemented 'exploration Fridays' where team members could work on any project they were passionate about. Productivity actually increased, and several exploration projects became major company innovations. Sometimes slowing down helps us go faster.",
+            
+            "A data analyst was given access to years of company data but told it was 'useless information.' She spent months finding patterns others missed and discovered insights that helped the company avoid a major strategic mistake. One person's noise is another person's symphony - it all depends on how carefully you listen.",
+            
+            "A customer service representative kept receiving the same complaint from different customers. Instead of just solving individual problems, she traced the root cause and proposed a product change. Her suggestion was implemented and eliminated 80% of customer complaints. Every complaint is an opportunity to make things better for everyone.",
+            
+            "A software architect was asked to design a system for a client whose requirements kept changing daily. Instead of getting frustrated, he created a flexible framework that could adapt to any changes. The client was so impressed by this adaptability that they hired the entire team for their next ten projects. Flexibility is strength, not weakness.",
+            
+            "A team's project was cancelled three weeks before completion. Instead of moving on, they requested permission to finish it on their own time because they believed in its value. Six months later, that 'cancelled' project became the company's most profitable product line. Persistence plus belief can overcome any obstacle.",
+            
+            "A junior employee suggested an idea during a meeting that senior leadership initially dismissed. She didn't give up but spent months researching and building a prototype in her spare time. When she presented the finished concept, it became the basis for a new business unit. Great ideas don't have titles or seniority requirements.",
+            
+            "A development team was behind schedule on a critical project. Instead of working longer hours, they decided to work smarter by pairing up and teaching each other their specialized skills. Not only did they meet the deadline, but every team member became more versatile. Collaboration multiplies individual strengths.",
+            
+            "A product manager's feature was universally hated by beta testers. Instead of defending it, she invited the harshest critics to co-design a better version. The final product, shaped by this feedback, became the most loved feature in the company's history. Criticism becomes creation when we embrace it as a gift.",
+            
+            "A system administrator noticed security vulnerabilities that others considered minor. She spent nights creating comprehensive protection protocols. Three months later, those protocols prevented a major cyber attack that could have destroyed the company. Small attention to security details can prevent massive disasters.",
+            
+            "A creative director's team was struggling with a client who rejected every proposal. Instead of trying harder to convince them, she organized a workshop where the client became part of the creative process. The collaborative approach led to a campaign that won industry awards. Sometimes the best solution is to stop selling and start collaborating.",
+            
+            "A finance analyst discovered discrepancies in expense reports that seemed insignificant. Her thorough investigation revealed a systematic fraud that was costing the company millions. Her attention to detail and refusal to ignore 'small' problems saved the organization from bankruptcy. Every detail matters when integrity is at stake.",
+            
+            "A user experience designer was told to make an app 'more addictive' to increase usage. Instead, she designed features that helped users accomplish their goals faster and leave satisfied. User satisfaction scores soared, and ironically, engagement increased because people trusted the app to respect their time. Ethical design creates lasting value.",
+            
+            "A network engineer was tasked with upgrading systems during a tight budget period. Instead of buying expensive new equipment, she creatively reconfigured existing resources and automated manual processes. Her solution not only saved money but improved performance beyond what the expensive upgrade would have achieved.",
+            
+            "A team leader inherited a project that three previous managers had failed to complete. Instead of starting over, she interviewed everyone who had worked on it to understand what went wrong. By learning from past mistakes and honoring previous efforts, she guided the team to success. Wisdom honors the lessons of those who came before.",
+            
+            "A business analyst was analyzing declining sales figures when she noticed customers were leaving positive reviews but not returning. Her investigation revealed that success was creating new needs the company wasn't addressing. Her insights led to product expansions that tripled revenue. Success creates new opportunities for those who pay attention.",
+            
+            "A database administrator's servers crashed during the company's biggest sales day of the year. Instead of panicking, she had prepared backup systems and recovery procedures that most thought were overkill. Her preparation saved millions in lost sales and earned her recognition as a strategic thinker. Preparation turns potential disasters into manageable situations.",
+            
+            "A graphic designer was asked to create materials for a campaign targeting an audience she knew nothing about. Instead of guessing, she spent weeks immersing herself in that community, learning their language, values, and visual preferences. Her authentic designs created the most successful campaign in company history. Authenticity requires understanding, not assumptions.",
+            
+            "A operations manager noticed employee morale dropping despite good performance metrics. She instituted monthly 'appreciation rounds' where team members acknowledged each other's contributions. Productivity increased 40% not because people worked harder, but because they felt valued. Recognition is fuel for human potential.",
+            
+            "A research scientist's experiment failed for the fifteenth time, but she noticed something unusual in the failed results. Instead of discarding the data, she investigated the anomaly and discovered a breakthrough that revolutionized their entire field. Sometimes failure contains the seeds of unexpected success.",
+            
+            "A sales representative was struggling to close deals in a competitive market. Instead of pushing harder, she started asking customers about their biggest challenges beyond what her product solved. This consultative approach made her a trusted advisor, and her sales tripled. Helping others succeed is the best path to your own success.",
+            
+            "A content creator's blog had only twelve readers after six months of posting. Instead of quitting, she personally reached out to each reader to understand what value they found in her work. Their feedback helped her refine her voice, and within a year she had built one of the industry's most respected publications. Quality audiences matter more than quantity.",
+            
+            "A logistics coordinator noticed delivery routes were inefficient but was told 'that's how we've always done it.' She created a pilot program with one route using her optimization ideas. The 30% improvement in efficiency led to company-wide implementation and promoted her to director of operations. Innovation often starts with questioning 'the way we've always done it.'",
+            
+            "A help desk technician kept getting calls about the same complex software issue. Instead of just fixing individual problems, she created step-by-step video tutorials and shared them with the community. Support calls dropped 60% and user satisfaction soared. Teaching others how to solve problems is more powerful than solving them one at a time.",
+            
+            "A project coordinator was managing multiple teams who rarely communicated with each other. She started a weekly 'cross-pollination' meeting where teams shared one interesting thing they learned. These sessions sparked unexpected collaborations that led to three breakthrough innovations. Great ideas emerge when knowledge flows freely between boundaries.",
+            
+            "A mobile app developer's app was rejected by app stores multiple times for being 'too simple.' Instead of adding complexity, she refined the simplicity until it was elegant. The app became a sensation specifically because it solved problems without creating new ones. Sometimes the most sophisticated solution is the simplest one.",
+            
+            "A HR manager noticed talented employees leaving for seemingly better opportunities. Instead of trying to retain them with counteroffers, she created alumni networks that maintained relationships. Many returned as senior leaders, and the alumni network became a powerful recruiting tool. Relationships that honor people's growth create long-term value.",
+            
+            "A supply chain analyst discovered suppliers were struggling with cash flow, affecting quality and delivery. Instead of finding cheaper alternatives, she worked with finance to create early payment programs that helped suppliers invest in better processes. Supply chain reliability improved dramatically, proving that helping partners succeed benefits everyone in the ecosystem."
+        ];
+
+        // Motivational Quotes
+        const quotes = [
+            "Excellence is never an accident. It is always the result of high intention, sincere effort, and intelligent execution.",
+            "The way to get started is to quit talking and begin doing. - Walt Disney",
+            "Innovation distinguishes between a leader and a follower. - Steve Jobs",
+            "Great teams are not made up of many well-rounded players, but of players with sharp edges.",
+            "Coming together is a beginning, staying together is progress, and working together is success. - Henry Ford",
+            "Teamwork makes the dream work, but vision becomes reality through hard work.",
+            "Success is not final, failure is not fatal: it is the courage to continue that counts. - Winston Churchill",
+            "The strength of the team is each individual member. The strength of each member is the team. - Phil Jackson",
+            "Quality is not an act, it is a habit. - Aristotle",
+            "Leadership is the capacity to translate vision into reality. - Warren Bennis",
+            "Creativity is intelligence having fun. - Albert Einstein",
+            "The best way to predict the future is to create it. - Peter Drucker",
+            "Alone we can do so little; together we can do so much. - Helen Keller",
+            "Great things in business are never done by one person; they're done by a team of people. - Steve Jobs",
+            "If you want to go fast, go alone. If you want to go far, go together. - African Proverb"
+        ];
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            populateTeamTables();
+            initializeCharts();
+            startQuoteRotation();
+            setCurrentDate();
+            calculateAllScores();
+            updateCalendar();
+            updateScoreSummaryBoxes();
+            updateFinalSummaryBoxes();
+
+            // Event listeners
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.settings-dropdown')) {
+                    document.getElementById('settings-dropdown').classList.remove('show');
+                }
+                if (!event.target.closest('.relative')) {
+                    document.getElementById('calendar-container').style.display = 'none';
+                }
+                if (!event.target.closest('.relative')) {
+                    document.getElementById('email-options').classList.remove('show');
+                }
+            });
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            // Update charts with new theme
+            setTimeout(() => {
+                initializeCharts();
+            }, 100);
+        }
+
+        // Email Options Toggle
+        function toggleEmailOptions() {
+            const options = document.getElementById('email-options');
+            options.classList.toggle('show');
+        }
+
+        // Enhanced Email Integration with Auto JSON Download
+        function emailReport(clientType = 'default') {
+            const recipientEmail = document.getElementById('email-recipient').value || 'rakesh.suthar@performics.com';
+
+            // First, automatically download the JSON file
+            const exportData = generateExportData();
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(dataBlob);
+            downloadLink.download = `NIRA_Evaluation_Data_${new Date().toISOString().split('T')[0]}.json`;
+            downloadLink.click();
+            
+            setTimeout(() => URL.revokeObjectURL(downloadLink.href), 1000);
+
+            // Generate comprehensive summary table
+            let summaryTable = generateEmailSummary();
+
+            const subject = encodeURIComponent(`NIRA PB-NI Evaluation Results - ${document.getElementById('evaluation-month-display').textContent}`);
+            const body = encodeURIComponent(`Dear Team,
+
+Please find the complete evaluation results for this month's PB and NI assessments.
+
+The evaluation data JSON file has been automatically downloaded. Please attach it to this email before sending.
+
+${summaryTable}
+
+TEAM DETAILS:
+${teams.map(team => `• ${team.name}: Lead - ${team.lead}, Members - ${team.members.join(', ')}`).join('\\n')}
+
+EVALUATION METADATA:
+• PB Evaluator: ${document.getElementById('pb-evaluator-name').value || '[Not specified]'}
+• NI Evaluator: ${document.getElementById('ni-evaluator-name').value || '[Not specified]'}
+• Evaluation Date: ${document.getElementById('evaluation-date').value || new Date().toISOString().split('T')[0]}
+• Evaluation Period: ${document.getElementById('evaluation-month-display').textContent}
+
+Best regards,
+NIRA Evaluation System
+Generated on ${new Date().toLocaleString()}
+
+---
+Please remember to attach the downloaded JSON file before sending this email.`);
+
+            // Hide email options
+            document.getElementById('email-options').classList.remove('show');
+
+            let mailtoLink;
+            switch(clientType) {
+                case 'outlook':
+                    mailtoLink = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
+                    break;
+                case 'gmail':
+                    mailtoLink = `https://mail.google.com/mail/?view=cm&to=${recipientEmail}&subject=${subject}&body=${body}`;
+                    break;
+                default:
+                    mailtoLink = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
+                    break;
+            }
+            
+            // Open email client
+            try {
+                if (clientType === 'gmail') {
+                    window.open(mailtoLink, '_blank');
+                } else {
+                    window.location.href = mailtoLink;
+                }
+            } catch (error) {
+                window.location.href = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
+            }
+
+            // Show success message
+            alert(`JSON file downloaded! Your email client should open now. Please attach the downloaded JSON file before sending.`);
+        }
+
+        function generateEmailSummary() {
+            let summaryTable = "EVALUATION RESULTS SUMMARY\\n";
+            summaryTable += "════════════════════════════════════════════\\n\\n";
+
+            // PB Results
+            summaryTable += "PLAYBOOK (PB) EVALUATION:\\n";
+            summaryTable += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n";
+            
+            teams.forEach(team => {
+                const scores = evaluationData.pb[team.id].scores;
+                const comments = evaluationData.pb[team.id].comments || 'No comments';
+                summaryTable += `${team.name} (Lead: ${team.lead}) - Total: ${evaluationData.pb[team.id].total.toFixed(1)}% - ${comments}\\n`;
+            });
+
+            // NI Results
+            summaryTable += "\\n\\nNOTES & INSIGHTS (NI) EVALUATION:\\n";
+            summaryTable += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n";
+            
+            teams.forEach(team => {
+                const scores = evaluationData.ni[team.id].scores;
+                const comments = evaluationData.ni[team.id].comments || 'No comments';
+                summaryTable += `${team.name} (Lead: ${team.lead}) - Total: ${evaluationData.ni[team.id].total.toFixed(1)}% - ${comments}\\n`;
+            });
+
+            // Winners
+            const pbWinner = [...teams].sort((a, b) => evaluationData.pb[b.id].total - evaluationData.pb[a.id].total)[0];
+            const niWinner = [...teams].sort((a, b) => evaluationData.ni[b.id].total - evaluationData.ni[a.id].total)[0];
+
+            summaryTable += "\\n\\nWINNERS & RANKINGS:\\n";
+            summaryTable += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n";
+            summaryTable += `🏆 PB Champion: ${pbWinner.name} (Lead: ${pbWinner.lead}) - ${evaluationData.pb[pbWinner.id].total.toFixed(1)}%\\n`;
+            summaryTable += `💡 NI Champion: ${niWinner.name} (Lead: ${niWinner.lead}) - ${evaluationData.ni[niWinner.id].total.toFixed(1)}%\\n\\n`;
+
+            return summaryTable;
+        }
+
+        // Publish Report Function (PDF with Landscape)
+        async function publishReport() {
+            try {
+                // Show loading indicator
+                const originalButtonText = event.target.innerHTML;
+                event.target.innerHTML = '<i class="fas fa-spinner loading-spinner mr-1"></i>Generating Report...';
+                event.target.disabled = true;
+
+                // Hide no-print elements
+                const noPrintElements = document.querySelectorAll('.no-print');
+                noPrintElements.forEach(el => el.style.display = 'none');
+
+                // Configure html2canvas options for better quality
+                const canvas = await html2canvas(document.body, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    width: document.body.scrollWidth,
+                    height: document.body.scrollHeight,
+                    scrollX: 0,
+                    scrollY: 0
+                });
+
+                // Show no-print elements again
+                noPrintElements.forEach(el => el.style.display = '');
+
+                // Create PDF in landscape format
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                // Calculate dimensions to fit the page
+                const imgData = canvas.toDataURL('image/png');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                
+                // Calculate scaling to fit content
+                const canvasAspectRatio = canvas.width / canvas.height;
+                const pdfAspectRatio = pdfWidth / pdfHeight;
+                
+                let finalWidth, finalHeight;
+                if (canvasAspectRatio > pdfAspectRatio) {
+                    finalWidth = pdfWidth;
+                    finalHeight = pdfWidth / canvasAspectRatio;
+                } else {
+                    finalHeight = pdfHeight;
+                    finalWidth = pdfHeight * canvasAspectRatio;
+                }
+
+                // Center the content
+                const xOffset = (pdfWidth - finalWidth) / 2;
+                const yOffset = (pdfHeight - finalHeight) / 2;
+
+                pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalWidth, finalHeight);
+
+                // Generate filename with timestamp
+                const timestamp = new Date().toISOString().split('T')[0];
+                const filename = `NIRA_Evaluation_Report_${timestamp}.pdf`;
+
+                // Save the PDF
+                pdf.save(filename);
+
+                // Restore button
+                event.target.innerHTML = originalButtonText;
+                event.target.disabled = false;
+
+                alert('Report published successfully! PDF downloaded in landscape format.');
+
+            } catch (error) {
+                console.error('Error generating report:', error);
+                
+                // Restore button
+                event.target.innerHTML = originalButtonText;
+                event.target.disabled = false;
+                
+                // Show no-print elements again in case of error
+                const noPrintElements = document.querySelectorAll('.no-print');
+                noPrintElements.forEach(el => el.style.display = '');
+                
+                alert('Error generating report. Please try using your browser\'s print function instead.');
+            }
+        }
+
+        // Custom Calendar Functions
+        function toggleCalendar() {
+            const container = document.getElementById('calendar-container');
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function updateCalendar() {
+            currentMonth = parseInt(document.getElementById('month-select').value);
+            currentYear = parseInt(document.getElementById('year-select').value);
+            
+            const calendar = document.querySelector('.calendar-grid');
+            const daysSection = calendar.querySelectorAll('.calendar-day');
+            daysSection.forEach(day => day.remove());
+
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+            for (let i = 0; i < 42; i++) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + i);
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = currentDate.getDate();
+                
+                if (currentDate.getMonth() !== currentMonth) {
+                    dayElement.style.opacity = '0.3';
+                }
+                
+                dayElement.onclick = () => selectDate(currentDate);
+                calendar.appendChild(dayElement);
+            }
+        }
+
+        function selectDate(date) {
+            selectedDate = date;
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            document.getElementById('evaluation-month-display').textContent = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+            document.getElementById('calendar-container').style.display = 'none';
+        }
+
+        function prevMonth() {
+            if (currentMonth === 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else {
+                currentMonth--;
+            }
+            document.getElementById('month-select').value = currentMonth;
+            document.getElementById('year-select').value = currentYear;
+            updateCalendar();
+        }
+
+        function nextMonth() {
+            if (currentMonth === 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else {
+                currentMonth++;
+            }
+            document.getElementById('month-select').value = currentMonth;
+            document.getElementById('year-select').value = currentYear;
+            updateCalendar();
+        }
+
+        // Settings Functions
+        function toggleSettings() {
+            const dropdown = document.getElementById('settings-dropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function openTeamManager() {
+            populateTeamManager();
+            document.getElementById('team-manager-modal').style.display = 'block';
+        }
+
+        function closeTeamManager() {
+            document.getElementById('team-manager-modal').style.display = 'none';
+        }
+
+        function populateTeamManager() {
+            const container = document.getElementById('team-list');
+            container.innerHTML = '';
+            
+            teams.forEach((team, index) => {
+                const teamDiv = document.createElement('div');
+                teamDiv.className = 'flex items-center justify-between p-3 bg-secondary rounded-lg';
+                teamDiv.innerHTML = `
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-3">
+                            <input type="text" value="${team.name}" onchange="updateTeamName(${index}, this.value)" class="font-semibold text-primary bg-transparent border-b border-gray-300 focus:border-blue-500 text-sm">
+                        </div>
+                        <div class="mt-2">
+                            <div class="text-xs font-medium text-secondary mb-1">Lead:</div>
+                            <input type="text" value="${team.lead}" onchange="updateTeamLead(${index}, this.value)" class="text-xs text-secondary bg-transparent border-b border-gray-300 focus:border-blue-500 w-full mb-2" placeholder="Team lead">
+                            <div class="text-xs font-medium text-secondary mb-1">Members:</div>
+                            <input type="text" value="${team.members.join(', ')}" onchange="updateTeamMembers(${index}, this.value)" class="text-xs text-secondary bg-transparent border-b border-gray-300 focus:border-blue-500 w-full" placeholder="Team members (comma-separated)">
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="deleteTeam(${index})" class="btn-secondary text-xs text-red-600 hover:bg-red-100">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(teamDiv);
+            });
+        }
+
+        function updateTeamName(index, newName) {
+            if (newName.trim()) {
+                teams[index].name = newName.trim();
+                populateTeamTables();
+                updateCharts();
+                updateMedalRankings();
+                updateScoreSummaryBoxes();
+                updateFinalSummaryBoxes();
+                updateMedalWinnersDisplay();
+            }
+        }
+
+        function updateTeamLead(index, newLead) {
+            if (newLead.trim()) {
+                teams[index].lead = newLead.trim();
+                populateTeamTables();
+                updateMedalRankings();
+                updateMedalWinnersDisplay();
+            }
+        }
+
+        function updateTeamMembers(index, newMembers) {
+            if (newMembers.trim()) {
+                teams[index].members = newMembers.split(',').map(m => m.trim()).filter(m => m);
+                populateTeamTables();
+                updateMedalRankings();
+                updateMedalWinnersDisplay();
+            }
+        }
+
+        function addNewTeam() {
+            const name = prompt('Enter team name:');
+            if (name && name.trim()) {
+                const lead = prompt('Enter team lead:');
+                const members = prompt('Enter team members (comma-separated):');
+                if (lead && lead.trim() && members && members.trim()) {
+                    const newTeam = {
+                        id: 'team_' + Date.now(),
+                        name: name.trim(),
+                        lead: lead.trim(),
+                        members: members.split(',').map(m => m.trim()).filter(m => m),
+                        color: ['blue', 'green', 'purple', 'red', 'yellow', 'indigo', 'pink'][teams.length % 7]
+                    };
+                    teams.push(newTeam);
+                    
+                    evaluationData.pb[newTeam.id] = {
+                        scores: { originality: 0, clarity: 0, relevance: 0, innovation: 0, impact: 0 },
+                        total: 0,
+                        comments: ''
+                    };
+                    evaluationData.ni[newTeam.id] = {
+                        scores: { quality: 0, clarity: 0, data: 0, recommendations: 0, presentation: 0 },
+                        total: 0,
+                        comments: ''
+                    };
+                    
+                    populateTeamManager();
+                    populateTeamTables();
+                    updateCharts();
+                    updateMedalRankings();
+                    updateScoreSummaryBoxes();
+                    updateFinalSummaryBoxes();
+                    updateMedalWinnersDisplay();
+                }
+            }
+        }
+
+        function deleteTeam(index) {
+            if (confirm('Are you sure you want to delete this team?')) {
+                const team = teams[index];
+                delete evaluationData.pb[team.id];
+                delete evaluationData.ni[team.id];
+                teams.splice(index, 1);
+                
+                populateTeamManager();
+                populateTeamTables();
+                updateCharts();
+                updateMedalRankings();
+                updateScoreSummaryBoxes();
+                updateFinalSummaryBoxes();
+                updateMedalWinnersDisplay();
+            }
+        }
+
+        function toggleCriteriaDisplay(type) {
+            const checkbox = document.getElementById(`show-${type}-criteria`);
+            const display = document.getElementById(`${type}-criteria-display`);
+            if (checkbox.checked) {
+                display.style.display = 'grid';
+            } else {
+                display.style.display = 'none';
+            }
+        }
+
+        // Quote Rotation
+        function startQuoteRotation() {
+            const banner = document.getElementById('quotes-banner');
+            function showNextQuote() {
+                banner.textContent = quotes[currentQuoteIndex];
+                currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+            }
+            showNextQuote();
+            setInterval(showNextQuote, 6000);
+        }
+
+        // Set Current Date
+        function setCurrentDate() {
+            const today = new Date();
+            document.getElementById('evaluation-date').value = today.toISOString().split('T')[0];
+        }
+
+        // Populate Team Tables (without lead/member names)
+        function populateTeamTables() {
+            populatePBTable();
+            populateNITable();
+        }
+
+        function populatePBTable() {
+            const tbody = document.getElementById('pb-scoring-table');
+            tbody.innerHTML = '';
+            
+            teams.forEach(team => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-custom hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="p-2 font-medium text-${team.color}-600 border border-custom">
+                        <div class="font-bold text-sm">${team.name}</div>
+                    </td>
+                    <td class="p-2 text-center border border-custom">
+                        <input type="number" min="0" max="25" step="0.1" value="${evaluationData.pb[team.id].scores.originality}" class="w-12 p-1 border border-custom rounded text-center text-xs" data-team="${team.id}" data-criterion="originality" oninput="validateInput(this, 25); calculatePBScore('${team.id}')" placeholder="0-25">
+                    </td>
+                    <td class="p-2 text-center border border-custom">
+                        <input type="number" min="0" max="20" step="0.1" value="${evaluationData.pb[team.id].scores.clarity}" class="w-12 p-1 border border-custom rounded text-center text-xs" data-team="${team.id}" data-criterion="clarity" oninput="validateInput(this, 20); calculatePBScore('${team.id}')" placeholder="0-20">
+                    </td>
+                    <td class="p-2 text-center border border-custom">
+                        <input type="number" min="0" max="20" step="0.1" value="${evaluationData.pb[team.id].scores.relevance}" class="w-12 p-1 border border-custom rounded text-center text-xs" data-team="${team.id}" data-criterion="relevance" oninput="validateInput(this, 20); calculatePBScore('${team.id}')" placeholder="0-20">
+                    </td>
+                    <td class="p-2 text-center border border-custom">
+                        <input type="number" min="0" max="20" step="0.1" value="${evaluationData.pb[team.id].scores.innovation}" class="w-12 p-1 border border-custom rounded text-center text-xs" data-team="${team.id}" data-criterion="innovation" oninput="validateInput(this, 20); calculatePBScore('${team.id}')" placeholder="0-20">
+                    </td>
+                    <td class="p-2 text-center border border-custom">
+                        <input type="number" min="0" max="15" step="0.1" value="${evaluationData.pb[team.id].scores.impact}" class="w-12 p-1 border border-custom rounded text-center text-xs" data-team="${team.id}" data-criterion="impact" oninput="validateInput(this, 15); calculatePBScore('${team.id}')" placeholder="0-15">
+                    </td>
+                    <td class="p-2 text-center font-bold text-sm border border-custom" id="pb-total-${team.id}">${evaluationData.pb[team.id].total.toFixed(1)}%</td>
+                    <td class="p-2 border border-custom">
+                        <input type="text" value="${evaluationData.pb[team.id].comments}" class="w-full p-1 border border-custom rounded text-xs" placeholder="Comments..." data-team="${team.id}" data-type="pb-comments" onchange="updateComments('${team.id}', 'pb', this.value)">
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function populateNITable() {
+            const tbody = document.getElementById('ni-scoring-table');
+            tbody.innerHTML = '';
+            
+            teams.forEach(team => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-custom hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="p-2 font-medium text-${team.color}-600 border border-custom">
+                        <div class="font-bold text-sm">${team.name}</div>
+                    </td>
+                    <td class="p-2 text-center border border-custom">
+                        <input type="number" min="0" max="25" step="0.1" value="${evaluationData.ni[team.id].scores.quality}" class="w-12 p-1 border border-custom rounded text-center text-xs" data-team="${team.id}" data-criterion="quality" oninput="validateInput(this, 25); calculateNIScore('${team.id}')" placeholder="0-25">
+                    </td>
+                    <td class="p-2 text-center border border-custom">
+                        <input type="number" min="0" max="20" step="0.1" value="${evaluationData.ni[team.id].scores.clarity}" class="w-12 p-1 border border-custom rounded text-center text-xs" data-team="${team.id}" data-criterion="clarity" oninput="validateInput(this, 20); calculateNIScore('${team.id}')" placeholder="0-20">
+                    </td>
+                    <td class="p-2 text-center border border-custom">
+                        <input type="number" min="0" max="20" step="0.1" value="${evaluationData.ni[team.id].scores.data}" class="w-12 p-1 border border-custom rounded text-center text-xs" data-team="${team.id}" data-criterion="data" oninput="validateInput(this, 20); calculateNIScore('${team.id}')" placeholder="0-20">
+                    </td>
+                    <td class="p-2 text-center border border-custom">
+                        <input type="number" min="0" max="20" step="0.1" value="${evaluationData.ni[team.id].scores.recommendations}" class="w-12 p-1 border border-custom rounded text-center text-xs" data-team="${team.id}" data-criterion="recommendations" oninput="validateInput(this, 20); calculateNIScore('${team.id}')" placeholder="0-20">
+                    </td>
+                    <td class="p-2 text-center border border-custom">
+                        <input type="number" min="0" max="15" step="0.1" value="${evaluationData.ni[team.id].scores.presentation}" class="w-12 p-1 border border-custom rounded text-center text-xs" data-team="${team.id}" data-criterion="presentation" oninput="validateInput(this, 15); calculateNIScore('${team.id}')" placeholder="0-15">
+                    </td>
+                    <td class="p-2 text-center font-bold text-sm border border-custom" id="ni-total-${team.id}">${evaluationData.ni[team.id].total.toFixed(1)}%</td>
+                    <td class="p-2 border border-custom">
+                        <input type="text" value="${evaluationData.ni[team.id].comments}" class="w-full p-1 border border-custom rounded text-xs" placeholder="Comments..." data-team="${team.id}" data-type="ni-comments" onchange="updateComments('${team.id}', 'ni', this.value)">
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateComments(teamId, type, value) {
+            evaluationData[type][teamId].comments = value;
+        }
+
+        // Input Validation
+        function validateInput(input, maxValue) {
+            const value = parseFloat(input.value);
+            if (isNaN(value) || value < 0 || value > maxValue) {
+                input.classList.add('invalid-input');
+                input.classList.remove('valid-input');
+            } else {
+                input.classList.remove('invalid-input');
+                input.classList.add('valid-input');
+            }
+        }
+
+        // Score Calculations
+        function calculatePBScore(teamId) {
+            const inputs = document.querySelectorAll(`input[data-team="${teamId}"]`);
+            let total = 0;
+            
+            inputs.forEach(input => {
+                if (input.dataset.criterion && !input.closest('#ni-scoring-table')) {
+                    const value = parseFloat(input.value) || 0;
+                    total += value;
+                    evaluationData.pb[teamId].scores[input.dataset.criterion] = value;
+                }
+            });
+            
+            evaluationData.pb[teamId].total = total;
+            document.getElementById(`pb-total-${teamId}`).textContent = total.toFixed(1) + '%';
+            
+            updateMedalRankings();
+            updateWinnerCards();
+            updateCharts();
+            updateScoreSummaryBoxes();
+            updateFinalSummaryBoxes();
+            updateMedalWinnersDisplay();
+        }
+
+        function calculateNIScore(teamId) {
+            const inputs = document.querySelectorAll(`input[data-team="${teamId}"]`);
+            let total = 0;
+            
+            inputs.forEach(input => {
+                if (input.dataset.criterion && input.closest('#ni-scoring-table')) {
+                    const value = parseFloat(input.value) || 0;
+                    total += value;
+                    evaluationData.ni[teamId].scores[input.dataset.criterion] = value;
+                }
+            });
+            
+            evaluationData.ni[teamId].total = total;
+            document.getElementById(`ni-total-${teamId}`).textContent = total.toFixed(1) + '%';
+            
+            updateMedalRankings();
+            updateWinnerCards();
+            updateCharts();
+            updateScoreSummaryBoxes();
+            updateFinalSummaryBoxes();
+            updateMedalWinnersDisplay();
+        }
+
+        function calculateAllScores() {
+            teams.forEach(team => {
+                calculatePBScore(team.id);
+                calculateNIScore(team.id);
+            });
+        }
+
+        // Score Summary Boxes
+        function updateScoreSummaryBoxes() {
+            const container = document.getElementById('score-summary-boxes');
+            container.innerHTML = '';
+            
+            teams.forEach((team, index) => {
+                const totalScore = (evaluationData.pb[team.id].total + evaluationData.ni[team.id].total) / 2;
+                const box = document.createElement('div');
+                box.className = 'score-box';
+                box.innerHTML = `
+                    <h4 class="font-bold text-xs mb-1">${team.name}</h4>
+                    <div class="text-lg font-bold">${totalScore.toFixed(1)}%</div>
+                    <div class="text-xs opacity-90 mt-1">
+                        PB: ${evaluationData.pb[team.id].total.toFixed(1)}% | NI: ${evaluationData.ni[team.id].total.toFixed(1)}%
+                    </div>
+                `;
+                container.appendChild(box);
+            });
+        }
+
+        // Final Summary Boxes
+        function updateFinalSummaryBoxes() {
+            const container = document.getElementById('final-summary-boxes');
+            container.innerHTML = '';
+            
+            // Calculate combined scores and sort
+            const teamScores = teams.map(team => ({
+                ...team,
+                combinedScore: (evaluationData.pb[team.id].total + evaluationData.ni[team.id].total) / 2,
+                pbScore: evaluationData.pb[team.id].total,
+                niScore: evaluationData.ni[team.id].total
+            })).sort((a, b) => b.combinedScore - a.combinedScore);
+
+            teamScores.forEach((team, index) => {
+                const box = document.createElement('div');
+                box.className = 'score-box';
+                box.innerHTML = `
+                    <h4 class="font-bold text-sm mb-2">${team.name}</h4>
+                    <div class="text-xl font-bold mb-1">${team.combinedScore.toFixed(1)}%</div>
+                    <div class="text-xs opacity-90 mb-2">
+                        PB: ${team.pbScore.toFixed(1)}% | NI: ${team.niScore.toFixed(1)}%
+                    </div>
+                    <div class="text-xs opacity-90">
+                        Lead: ${team.lead}<br>
+                        ${team.members.join(', ')}
+                    </div>
+                `;
+                container.appendChild(box);
+            });
+        }
+
+        // Medal Rankings with Lead/Member Names
+        function updateMedalRankings() {
+            updatePBMedalTable();
+            updateNIMedalTable();
+        }
+
+        function updatePBMedalTable() {
+            const table = document.getElementById('pb-medal-table');
+            const sortedTeams = [...teams].sort((a, b) => 
+                evaluationData.pb[b.id].total - evaluationData.pb[a.id].total
+            );
+            
+            table.innerHTML = '';
+            sortedTeams.forEach((team, index) => {
+                const medals = ['🥇', '🥈', '🥉', '🏅'];
+                const medal = index < 4 ? medals[index] : '';
+                const position = index + 1;
+                const score = evaluationData.pb[team.id].total.toFixed(1);
+                
+                const card = document.createElement('div');
+                card.className = 'ranking-card flex items-center justify-between';
+                card.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="medal-small">${medal}</span>
+                        <div>
+                            <div class="font-semibold text-primary text-xs">${position}. ${team.name}</div>
+                            <div class="text-xs text-secondary">Lead: ${team.lead}</div>
+                            <div class="text-xs text-secondary">${team.members.join(', ')}</div>
+                        </div>
+                    </div>
+                    <div class="text-sm font-bold text-primary">${score}%</div>
+                `;
+                table.appendChild(card);
+            });
+        }
+
+        function updateNIMedalTable() {
+            const table = document.getElementById('ni-medal-table');
+            const sortedTeams = [...teams].sort((a, b) => 
+                evaluationData.ni[b.id].total - evaluationData.ni[a.id].total
+            );
+            
+            table.innerHTML = '';
+            sortedTeams.forEach((team, index) => {
+                const medals = ['🥇', '🥈', '🥉', '🏅'];
+                const medal = index < 4 ? medals[index] : '';
+                const position = index + 1;
+                const score = evaluationData.ni[team.id].total.toFixed(1);
+                
+                const card = document.createElement('div');
+                card.className = 'ranking-card flex items-center justify-between';
+                card.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="medal-small">${medal}</span>
+                        <div>
+                            <div class="font-semibold text-primary text-xs">${position}. ${team.name}</div>
+                            <div class="text-xs text-secondary">Lead: ${team.lead}</div>
+                            <div class="text-xs text-secondary">${team.members.join(', ')}</div>
+                        </div>
+                    </div>
+                    <div class="text-sm font-bold text-primary">${score}%</div>
+                `;
+                table.appendChild(card);
+            });
+        }
+
+        // Medal Winners Display for Reports Section
+        function updateMedalWinnersDisplay() {
+            const container = document.getElementById('medal-winners-display');
+            if (!container) return;
+            
+            // Calculate combined scores and sort
+            const teamScores = teams.map(team => ({
+                ...team,
+                combinedScore: (evaluationData.pb[team.id].total + evaluationData.ni[team.id].total) / 2,
+                pbScore: evaluationData.pb[team.id].total,
+                niScore: evaluationData.ni[team.id].total
+            })).sort((a, b) => b.combinedScore - a.combinedScore);
+
+            container.innerHTML = '';
+            
+            teamScores.slice(0, 4).forEach((team, index) => {
+                const medals = ['🥇', '🥈', '🥉', '🏅'];
+                const medalClasses = ['first', 'second', 'third', ''];
+                const medal = medals[index];
+                const medalClass = medalClasses[index];
+                
+                const display = document.createElement('div');
+                display.className = `medal-display ${medalClass}`;
+                display.innerHTML = `
+                    <span class="medal">${medal}</span>
+                    <div class="font-bold text-sm">${team.name}</div>
+                    <div class="text-xs mt-1">Lead: ${team.lead}</div>
+                    <div class="text-lg font-bold mt-2">${team.combinedScore.toFixed(1)}%</div>
+                    <div class="text-xs opacity-80">Combined Score</div>
+                `;
+                container.appendChild(display);
+            });
+        }
+
+        // Winner Cards
+        function updateWinnerCards() {
+            updatePBWinner();
+            updateNIWinner();
+        }
+
+        function updatePBWinner() {
+            const sortedTeams = [...teams].sort((a, b) => 
+                evaluationData.pb[b.id].total - evaluationData.pb[a.id].total
+            );
+            
+            if (sortedTeams.length > 0) {
+                const winner = sortedTeams[0];
+                const score = evaluationData.pb[winner.id].total;
+                document.getElementById('pb-winner-name').textContent = winner.name;
+                document.getElementById('pb-winner-score').textContent = `Score: ${score.toFixed(1)}%`;
+            }
+        }
+
+        function updateNIWinner() {
+            const sortedTeams = [...teams].sort((a, b) => 
+                evaluationData.ni[b.id].total - evaluationData.ni[a.id].total
+            );
+            
+            if (sortedTeams.length > 0) {
+                const winner = sortedTeams[0];
+                const score = evaluationData.ni[winner.id].total;
+                document.getElementById('ni-winner-name').textContent = winner.name;
+                document.getElementById('ni-winner-score').textContent = `Score: ${score.toFixed(1)}%`;
+            }
+        }
+
+        // Charts
+        function initializeCharts() {
+            initializePBChart();
+            initializeNIChart();
+            initializeComparisonChart();
+        }
+
+        function initializePBChart() {
+            const ctx = document.getElementById('pb-chart');
+            if (!ctx) return;
+            
+            const context = ctx.getContext('2d');
+            if (charts.pb) {
+                charts.pb.destroy();
+            }
+            
+            const data = teams.map(team => evaluationData.pb[team.id].total);
+            const labels = teams.map(team => team.name);
+            
+            charts.pb = new Chart(context, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'PB Scores',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(236, 72, 153, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(16, 185, 129)',
+                            'rgb(139, 92, 246)',
+                            'rgb(245, 158, 11)',
+                            'rgb(239, 68, 68)',
+                            'rgb(99, 102, 241)',
+                            'rgb(236, 72, 153)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeNIChart() {
+            const ctx = document.getElementById('ni-chart');
+            if (!ctx) return;
+            
+            const context = ctx.getContext('2d');
+            if (charts.ni) {
+                charts.ni.destroy();
+            }
+            
+            const data = teams.map(team => evaluationData.ni[team.id].total);
+            const labels = teams.map(team => team.name);
+            const total = data.reduce((sum, score) => sum + score, 0);
+            
+            charts.ni = new Chart(context, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'NI Scores',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(236, 72, 153, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(16, 185, 129)',
+                            'rgb(139, 92, 246)',
+                            'rgb(245, 158, 11)',
+                            'rgb(239, 68, 68)',
+                            'rgb(99, 102, 241)',
+                            'rgb(236, 72, 153)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return `${label}: ${value.toFixed(1)}% (${percentage}% share)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeComparisonChart() {
+            const ctx = document.getElementById('comparisonChart');
+            if (!ctx) return;
+            
+            const context = ctx.getContext('2d');
+            if (charts.comparison) {
+                charts.comparison.destroy();
+            }
+            
+            charts.comparison = new Chart(context, {
+                type: 'bar',
+                data: {
+                    labels: teams.map(team => team.name),
+                    datasets: [
+                        {
+                            label: 'PB Scores',
+                            data: teams.map(team => evaluationData.pb[team.id].total),
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            borderColor: 'rgb(59, 130, 246)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'NI Scores',
+                            data: teams.map(team => evaluationData.ni[team.id].total),
+                            backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                            borderColor: 'rgb(245, 158, 11)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts() {
+            if (charts.pb) {
+                charts.pb.data.datasets[0].data = teams.map(team => evaluationData.pb[team.id].total);
+                charts.pb.data.labels = teams.map(team => team.name);
+                charts.pb.update();
+            }
+            
+            if (charts.ni) {
+                charts.ni.data.datasets[0].data = teams.map(team => evaluationData.ni[team.id].total);
+                charts.ni.data.labels = teams.map(team => team.name);
+                charts.ni.update();
+            }
+            
+            if (charts.comparison) {
+                charts.comparison.data.labels = teams.map(team => team.name);
+                charts.comparison.data.datasets[0].data = teams.map(team => evaluationData.pb[team.id].total);
+                charts.comparison.data.datasets[1].data = teams.map(team => evaluationData.ni[team.id].total);
+                charts.comparison.update();
+            }
+        }
+
+        // Enhanced Nira Story Bot (without online/offline status)
+        async function getStory() {
+            const container = document.getElementById('story-container');
+            const text = document.getElementById('story-text');
+            const button = document.getElementById('story-button');
+
+            // Show loading
+            container.style.display = 'flex';
+            text.innerHTML = '<i class="fas fa-spinner loading-spinner mr-2"></i>Loading an inspiring story for you...';
+            button.disabled = true;
+
+            // Use local stories collection
+            const availableStories = motivationalStories.filter(story => !usedStories.has(story));
+            
+            // If all stories have been used, reset the used stories set
+            if (availableStories.length === 0) {
+                usedStories.clear();
+            }
+
+            const selectedStory = availableStories.length > 0 ? 
+                availableStories[Math.floor(Math.random() * availableStories.length)] :
+                motivationalStories[Math.floor(Math.random() * motivationalStories.length)];
+            
+            usedStories.add(selectedStory);
+
+            // Simulate loading time for better UX
+            setTimeout(() => {
+                text.textContent = selectedStory;
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-star mr-1"></i>Tell me another';
+            }, 1500);
+        }
+
+        // Import/Export Functions (Fixed icons)
+        function exportData() {
+            const exportData = generateExportData();
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `NIRA_Evaluation_Export_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+            
+            alert('Data exported successfully! All evaluation data, team information, and scores have been saved.');
+        }
+
+        function importData() {
+            document.getElementById('file-input').click();
+        }
+
+        function generateExportData() {
+            return {
+                teams: teams.map(team => ({
+                    ...team,
+                    pbScores: evaluationData.pb[team.id].scores,
+                    pbTotal: evaluationData.pb[team.id].total,
+                    pbComments: evaluationData.pb[team.id].comments,
+                    niScores: evaluationData.ni[team.id].scores,
+                    niTotal: evaluationData.ni[team.id].total,
+                    niComments: evaluationData.ni[team.id].comments
+                })),
+                evaluationData: evaluationData,
+                exportDate: new Date().toISOString(),
+                evaluationMonth: document.getElementById('evaluation-month-display').textContent,
+                pbEvaluator: document.getElementById('pb-evaluator-name').value,
+                niEvaluator: document.getElementById('ni-evaluator-name').value,
+                evaluationDate: document.getElementById('evaluation-date').value,
+                metadata: {
+                    totalTeams: teams.length,
+                    avgPBScore: teams.reduce((sum, team) => sum + evaluationData.pb[team.id].total, 0) / teams.length,
+                    avgNIScore: teams.reduce((sum, team) => sum + evaluationData.ni[team.id].total, 0) / teams.length
+                }
+            };
+        }
+
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let data;
+                    if (file.name.endsWith('.json')) {
+                        data = JSON.parse(e.target.result);
+                        
+                        // Restore teams data with all properties
+                        if (data.teams) {
+                            teams = data.teams.map(team => ({
+                                id: team.id || 'team_' + Date.now(),
+                                name: team.name || 'Unknown Team',
+                                lead: team.lead || 'Unknown Lead',
+                                members: team.members || [],
+                                color: team.color || 'blue',
+                                pbScores: team.pbScores || {},
+                                pbTotal: team.pbTotal || 0,
+                                pbComments: team.pbComments || '',
+                                niScores: team.niScores || {},
+                                niTotal: team.niTotal || 0,
+                                niComments: team.niComments || ''
+                            }));
+
+                            // Restore evaluation data
+                            evaluationData = { pb: {}, ni: {} };
+                            teams.forEach(team => {
+                                evaluationData.pb[team.id] = {
+                                    scores: team.pbScores || { originality: 0, clarity: 0, relevance: 0, innovation: 0, impact: 0 },
+                                    total: team.pbTotal || 0,
+                                    comments: team.pbComments || ''
+                                };
+                                evaluationData.ni[team.id] = {
+                                    scores: team.niScores || { quality: 0, clarity: 0, data: 0, recommendations: 0, presentation: 0 },
+                                    total: team.niTotal || 0,
+                                    comments: team.niComments || ''
+                                };
+                            });
+                        }
+                        
+                        // Restore other data
+                        if (data.evaluationMonth) {
+                            document.getElementById('evaluation-month-display').textContent = data.evaluationMonth;
+                        }
+                        if (data.pbEvaluator) {
+                            document.getElementById('pb-evaluator-name').value = data.pbEvaluator;
+                        }
+                        if (data.niEvaluator) {
+                            document.getElementById('ni-evaluator-name').value = data.niEvaluator;
+                        }
+                        if (data.evaluationDate) {
+                            document.getElementById('evaluation-date').value = data.evaluationDate;
+                        }
+
+                        // Refresh the interface
+                        populateTeamTables();
+                        updateCharts();
+                        updateMedalRankings();
+                        updateScoreSummaryBoxes();
+                        updateFinalSummaryBoxes();
+                        updateWinnerCards();
+                        updateMedalWinnersDisplay();
+                        
+                        alert('Data imported successfully! All team data, scores, and comments have been restored.');
+                        
+                    } else if (file.name.endsWith('.xlsx')) {
+                        const workbook = XLSX.read(e.target.result, { type: 'array' });
+                        // Excel import logic would be implemented here
+                        alert('Excel import functionality is ready for implementation.');
+                    }
+                } catch (error) {
+                    alert('Error importing file: ' + error.message);
+                    console.error('Import error:', error);
+                }
+            };
+
+            if (file.name.endsWith('.json')) {
+                reader.readAsText(file);
+            } else {
+                reader.readAsArrayBuffer(file);
+            }
+
+            // Reset file input
+            event.target.value = '';
+        }
+    </script>
+</body>
+</html>

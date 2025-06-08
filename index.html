@@ -2181,6 +2181,7 @@ Generated on ${new Date().toLocaleString()}
                             }
                         },
                         datalabels: {
+                            display: false,
                             formatter: (value, context) => {
                                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
                                 return percentage + '%';
